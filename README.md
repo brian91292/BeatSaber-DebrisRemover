@@ -1,4 +1,4 @@
-# BeatSaber-DebrisRemover
+# Mod Info
 A Beat Saber mod designed to remove the debris that is spawned when you slice a note
 
 # How do I use it?
