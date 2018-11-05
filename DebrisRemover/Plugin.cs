@@ -10,7 +10,6 @@ namespace DebrisRemover
         public string Name => "DebrisRemover";
         public string Version => "1.0.1";
 
-        private GameHooks _gameHooks;
         public bool Enabled = true;
 
         public static Plugin Instance;
