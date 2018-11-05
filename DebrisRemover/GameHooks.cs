@@ -1,89 +1,25 @@
-﻿using PlayHooky;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using UnityEngine;
 using System.Diagnostics;
+using Ryder.Lightweight;
 
 namespace DebrisRemover
 {
-
-    public class NoteDebrisSpawnerHooks
+    public class GameHooks
     {
-        public static void SpawnDebris(NoteDebrisSpawner t, NoteCutInfo noteCutInfo, NoteController noteController)
-        {
-        }
-    }
+        private static Redirection _noteDebrisSpawner_SpawnDebris;
 
-    public class GameHooks : MonoBehaviour
-    {
-        private HookManager hookManager;
-        private Dictionary<string, MethodInfo> hooks;
-        public bool hooked = false;
-
-        private void Awake()
+        public static void NoteDebrisSpawner_SpawnDebris(NoteDebrisSpawner t, NoteCutInfo noteCutInfo, NoteController noteController)
         {
-            UnityEngine.Object.DontDestroyOnLoad((UnityEngine.Object)((UnityEngine.Component)this).gameObject);
-            this.hookManager = new HookManager();
-            this.hooks = new Dictionary<string, MethodInfo>();
+            if (!Plugin.Instance.Enabled) _noteDebrisSpawner_SpawnDebris.InvokeOriginal(t, new object[] { noteCutInfo, noteController });
         }
 
-        private void OnDestroy()
+        public static void Apply()
         {
-            RemoveHooks();
-        }
-
-        public void ApplyHooks()
-        {
-            if (!hooked)
-            {
-                this.Hook("DebrisSpawner", typeof(NoteDebrisSpawner).GetMethod("SpawnDebris"), typeof(NoteDebrisSpawnerHooks).GetMethod("SpawnDebris"));
-                hooked = true;
-            }
-        }
-
-        public void RemoveHooks()
-        {
-            if (!hooked)
-            {
-                foreach (string key in this.hooks.Keys)
-                    this.UnHook(key);
-
-                hooked = false;
-            }
-        }
-
-        private bool Hook(string key, MethodInfo target, MethodInfo hook)
-        {
-            if (this.hooks.ContainsKey(key))
-                return false;
-            try
-            {
-                this.hooks.Add(key, target);
-                this.hookManager.Hook(target, hook);
-                Plugin.Log($"{key} hooked!");
-                return true;
-            }
-            catch (Win32Exception ex)
-            {
-                Plugin.Log($"Unrecoverable Windows API error: {(object)ex}");
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log($"Unable to hook method, : {(object)ex}");
-                return false;
-            }
-        }
-
-        private bool UnHook(string key)
-        {
-            MethodInfo original;
-            if (!this.hooks.TryGetValue(key, out original))
-                return false;
-            this.hookManager.Unhook(original);
-            return true;
+            _noteDebrisSpawner_SpawnDebris = new Redirection(typeof(NoteDebrisSpawner).GetMethod("SpawnDebris"), typeof(GameHooks).GetMethod("NoteDebrisSpawner_SpawnDebris"), true);
         }
     }
 }

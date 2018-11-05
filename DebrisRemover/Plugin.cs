@@ -25,16 +25,9 @@ namespace DebrisRemover
             Enabled = ModPrefs.GetBool(Name, "Enabled", true);
             ModPrefs.SetBool(Name, "Enabled", Enabled);
 
-            _gameHooks = new GameObject().AddComponent<GameHooks>();
-            ToggleDebrisRemover(Enabled);
+            GameHooks.Apply();
         }
-
-        private void ToggleDebrisRemover(bool enabled)
-        {
-            if (enabled) _gameHooks.ApplyHooks();
-            else _gameHooks.RemoveHooks();
-        }
-
+        
         private void SceneManagerOnActiveSceneChanged(Scene arg0, Scene arg1)
         {
             if (arg1.name == "Menu")
@@ -43,8 +36,7 @@ namespace DebrisRemover
                 toggle.GetValue = Enabled;
                 toggle.OnToggle += (b) =>
                 {
-                    Enabled = b;
-                    ToggleDebrisRemover(Enabled);
+                    Instance.Enabled = b;
                     ModPrefs.SetBool(Name, "Enabled", Instance.Enabled);
                     Plugin.Log($"{(b ? "Enabled" : "Disabled")}");
                 };
