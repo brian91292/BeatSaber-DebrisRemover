@@ -20,6 +20,7 @@ namespace DebrisRemover
     {
         private HookManager hookManager;
         private Dictionary<string, MethodInfo> hooks;
+        public bool hooked = false;
 
         private void Awake()
         {
@@ -35,13 +36,22 @@ namespace DebrisRemover
 
         public void ApplyHooks()
         {
-            this.Hook("DebrisSpawner", typeof(NoteDebrisSpawner).GetMethod("SpawnDebris"), typeof(NoteDebrisSpawnerHooks).GetMethod("SpawnDebris"));
+            if (!hooked)
+            {
+                this.Hook("DebrisSpawner", typeof(NoteDebrisSpawner).GetMethod("SpawnDebris"), typeof(NoteDebrisSpawnerHooks).GetMethod("SpawnDebris"));
+                hooked = true;
+            }
         }
 
         public void RemoveHooks()
         {
-            foreach (string key in this.hooks.Keys)
-                this.UnHook(key);
+            if (!hooked)
+            {
+                foreach (string key in this.hooks.Keys)
+                    this.UnHook(key);
+
+                hooked = false;
+            }
         }
 
         private bool Hook(string key, MethodInfo target, MethodInfo hook)
