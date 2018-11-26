@@ -1,14 +1,17 @@
 ﻿using IllusionPlugin;
 using System;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using CustomUI.GameplaySettings;
 
 namespace DebrisRemover
 {
     public class Plugin : IPlugin
     {
         public string Name => "DebrisRemover";
-        public string Version => "1.0.1";
+        public string Version => "1.0.2";
 
         public bool Enabled = true;
 
@@ -29,9 +32,15 @@ namespace DebrisRemover
         
         private void SceneManagerOnActiveSceneChanged(Scene arg0, Scene arg1)
         {
-            if (arg1.name == "Menu")
+
+        }
+
+        private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
+        {
+            Plugin.Log($"Scene: {arg0.name}");
+            if (arg0.name == "Menu")
             {
-                var toggle = GameOptionsUI.CreateToggleOption("Debris Remover");
+                var toggle = GameplaySettingsUI.CreateToggleOption("Debris Remover", "Stops note debris from spawning entirely when you slice a note.");
                 toggle.GetValue = Enabled;
                 toggle.OnToggle += (b) =>
                 {
@@ -39,11 +48,20 @@ namespace DebrisRemover
                     ModPrefs.SetBool(Name, "Enabled", Instance.Enabled);
                     Plugin.Log($"{(b ? "Enabled" : "Disabled")}");
                 };
+
+                Plugin.Log("Created gameplay settings toggle!");
             }
         }
 
-        private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
+        float testval = 0;
+        private void Toggle2_OnChange(float obj)
         {
+            testval = obj;
+        }
+
+        float getvalue()
+        {
+            return testval;
         }
 
         public void OnApplicationQuit()
